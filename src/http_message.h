@@ -1,5 +1,5 @@
-#ifndef _HTTP_MESSAGE_
-#define _HTTP_MESSAGE_
+#ifndef LWHTTP_HTTP_MESSAGE_H
+#define LWHTTP_HTTP_MESSAGE_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -44,16 +44,24 @@ void http_message_bind_query(http_message* msg, uri_query* query);
 void http_message_add_query(http_message* msg, const char* name,
                             const char* value);
 
-#ifndef URI_MAX_QUERIES
-#define URI_MAX_QUERIES 64
-#endif // HTTP_MAX_QUERIES
+#ifndef URI_QUERY_MAX
+#define URI_QUERY_MAX 64
+#endif // URI_QUERY_MAX
+
+#ifndef URI_QUERY_NAME_MAX
+#define URI_QUERY_NAME_MAX 16
+#endif // URI_QUERY_NAME_MAX
+
+#ifndef URI_QUERY_VALUE_MAX
+#define URI_QUERY_VALUE_MAX 32
+#endif // URI_QUERY_VALUE_MAX
 
 struct uri_query {
     uint16_t nqueries;
-    struct ss query_names[URI_MAX_QUERIES];
-    struct ss query_values[URI_MAX_QUERIES];
+    struct ss query_names[URI_QUERY_MAX];
+    struct ss query_values[URI_QUERY_MAX];
 };
 
 size_t uri_query_build(uri_query* query, char* buf, size_t len);
 
-#endif // _HTTP_MESSAGE_
+#endif // LWHTTP_HTTP_MESSAGE_H

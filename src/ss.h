@@ -2,8 +2,8 @@
 // Created by xu on 17-4-20.
 //
 
-#ifndef HTTP_CLIENT_USTR_H
-#define HTTP_CLIENT_USTR_H
+#ifndef LWHTTP_SS_H
+#define LWHTTP_SS_H
 
 #include <stddef.h>
 
@@ -13,14 +13,22 @@ struct ss {
     size_t len;
 };
 
+char* ss_strcopy(char* buf, size_t len, struct ss src);
+
+int ss_strncmp(const struct ss* s1, const char* s2, size_t len);
+
+int ss_strncasecmp(const struct ss* s1, const char* s2, size_t len);
+
+#ifdef _DEBUG
 #define SS_DUMP(s)                                                             \
     do {                                                                       \
-        char fmt[16];                                                          \
         printf("%s| ", __func__);                                              \
-        printf("%s: (%zd)\'", #s, s.len);                                      \
-        snprintf(fmt, sizeof(fmt), "%%.%zds", s.len);                          \
-        printf(fmt, s.p);                                                      \
+        printf("%s(%zd): \'", #s, s.len);                                      \
+        printf("%.*s", (int)s.len, s.p);                                       \
         printf("\'\n");                                                        \
     } while (0)
+#else  // _DEBUG
+#define SS_DUMP(s)
+#endif // _DEBUG
 
-#endif // HTTP_CLIENT_USTR_H
+#endif // LWHTTP_SS_H

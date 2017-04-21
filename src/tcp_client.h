@@ -1,5 +1,5 @@
-#ifndef HTTP_CLIENT_TCP_CLIENT_H
-#define HTTP_CLIENT_TCP_CLIENT_H
+#ifndef LWHTTP_TCP_CLIENT_H
+#define LWHTTP_TCP_CLIENT_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -22,4 +22,4 @@ long tcp_client_recv(tcp_client* client, void* buf, size_t len);
 
 int tcp_client_close(tcp_client* client);
 
-#endif // HTTP_CLIENT_TCP_CLIENT_H
+#endif // LWHTTP_TCP_CLIENT_H

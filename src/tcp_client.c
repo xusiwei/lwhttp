@@ -35,10 +35,13 @@ int tcp_client_connect(tcp_client* client, const char* name, uint16_t port)
         perror("socket");
     }
 
+    client->port = port;
+    client->host = resolve_host_addr(name);
+
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    server_addr.sin_addr.s_addr = resolve_host_addr(name);
+    server_addr.sin_port = htons(client->port);
+    server_addr.sin_addr.s_addr = client->host;
 
     if (connect(client->fd, (const struct sockaddr*)&server_addr,
                 sizeof(server_addr)) < 0) {

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(lwhttp)
 
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -D_DEBUG)
+
 set(COMMON_SOURCES
         src/http_client.c
         src/http_client.h
@@ -10,6 +12,7 @@ set(COMMON_SOURCES
         src/http_parser.h
         src/tcp_client.h
         src/tcp_client.c
+        src/ss.c
         src/ss.h
         )
 
