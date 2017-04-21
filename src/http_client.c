@@ -8,6 +8,11 @@
 
 #define DEBUG(fmt, ...) printf("%s: " fmt "\r\n", __func__, ##__VA_ARGS__)
 
+void http_client_bind_request(http_client* client, http_message* request)
+{
+    http_message_bind_query(request, &client->query_stub);
+}
+
 void http_client_set_http_version(http_client* client, unsigned short major,
                                   unsigned short minor)
 {
@@ -31,30 +36,23 @@ void http_client_set_response_buffer(http_client* client, const char* p,
 
 void http_client_set_url(http_client* client, const char* url)
 {
-    http_message_set_url(&client->request, url);
+    http_message_set_url(client->request, url);
 }
 void http_client_set_method(http_client* client, uint16_t method)
 {
-    http_message_set_method(&client->request, method);
+    http_message_set_method(client->request, method);
 }
 
 void http_client_add_header(http_client* client, const char* name,
                             const char* value)
 {
-    struct ss us_name = {name, strlen(name)};
-    struct ss us_value = {value, strlen(value)};
-    http_message_add_header(&client->request, us_name, us_value);
+    http_message_add_header(client->request, name, value);
 }
 
 void http_client_add_query(http_client* client, const char* name,
                            const char* value)
 {
-    uint16_t nqueries = client->nqueries;
-    client->query_names[nqueries].p = name;
-    client->query_names[nqueries].len = strlen(name);
-    client->query_values[nqueries].p = value;
-    client->query_values[nqueries].len = strlen(value);
-    client->nqueries++;
+    http_message_add_query(client->request, name, value);
 }
 
 #define _BUFFER_APPEND(buffer, used, p, len)                                   \
@@ -72,23 +70,10 @@ static void _request_buffer_append(http_client* client, const char* p,
 
 static void _build_query_string(http_client* client)
 {
-    int i;
-    struct ss* names = client->query_names;
-    struct ss* values = client->query_values;
-    for (i = 0; i < client->nqueries; i++) {
-        _BUFFER_APPEND(client->query_buffer, client->query_buffer_used,
-                       (i ? "&" : ""), 1);
-        _BUFFER_APPEND(client->query_buffer, client->query_buffer_used,
-                       names[i].p, names[i].len);
-        _BUFFER_APPEND(client->query_buffer, client->query_buffer_used, "=", 1);
-        _BUFFER_APPEND(client->query_buffer, client->query_buffer_used,
-                       values[i].p, values[i].len);
-        //    _request_buffer_append(client, (i ? "&" : "?"), 1);
-        //    _request_buffer_append(client, names[i].p, names[i].len);
-        //    _request_buffer_append(client, "=", 1);
-        //    _request_buffer_append(client, values[i].p,
-        //    values[i].len);
-    }
+    size_t used = client->query_buffer_used;
+    used += uri_query_build(client->request->query, client->query_buffer + used,
+                            sizeof(client->query_buffer) - used);
+    client->query_buffer_used = used;
 }
 
 static void _prepare_resquest(http_client* client)
@@ -99,7 +84,7 @@ static void _prepare_resquest(http_client* client)
     enum http_method method;
     struct http_parser_url hp;
     struct ss *names, *values;
-    struct ss us = client->request.url;
+    struct ss us = client->request->url;
     static char number_text[16] = "";
 
     http_parser_url_init(&hp);
@@ -115,10 +100,11 @@ static void _prepare_resquest(http_client* client)
 
     // prepare query string
     if (hp.field_set & UF_QUERY) {
-        memcpy(client->query_buffer, us.p + hp.field_data[UF_QUERY].off,
-               hp.field_data[UF_QUERY].len);
-        client->query_buffer_used += hp.field_data[UF_QUERY].len;
-    } else {
+        _BUFFER_APPEND(client->query_buffer, client->query_buffer_used,
+                       us.p + hp.field_data[UF_QUERY].off,
+                       hp.field_data[UF_QUERY].len);
+    }
+    if (client->request->query->nqueries) {
         _build_query_string(client);
     }
 
@@ -127,7 +113,7 @@ static void _prepare_resquest(http_client* client)
     //
     // for request line
     // METHOD
-    method = (enum http_method)client->request.method;
+    method = (enum http_method)client->request->method;
     metstr = http_method_str(method);
     _request_buffer_append(client, metstr, strlen(metstr));
     _request_buffer_append(client, " ", 1);
@@ -142,7 +128,7 @@ static void _prepare_resquest(http_client* client)
         _request_buffer_append(client, client->query_buffer,
                                client->query_buffer_used);
     } else {
-        client->request.content_length = client->query_buffer_used;
+        client->request->content_length = client->query_buffer_used;
         snprintf(number_text, sizeof(number_text), "%zd",
                  client->query_buffer_used);
         http_client_add_header(client, "Content-Length", number_text);
@@ -171,9 +157,9 @@ static void _prepare_resquest(http_client* client)
         memcpy(client->host, host.p, host.len);
         _request_buffer_append(client, CRLF, 2);
     }
-    names = client->request.header_names;
-    values = client->request.header_values;
-    for (i = 0; i < client->request.nheaders; i++) {
+    names = client->request->header_names;
+    values = client->request->header_values;
+    for (i = 0; i < client->request->nheaders; i++) {
         _request_buffer_append(client, names[i].p, names[i].len);
         _request_buffer_append(client, ": ", 2);
         _request_buffer_append(client, values[i].p, values[i].len);
@@ -184,7 +170,7 @@ static void _prepare_resquest(http_client* client)
     _request_buffer_append(client, CRLF, 2);
 
     // for body
-    if (HTTP_GET != (enum http_method)client->request.method) {
+    if (HTTP_GET != (enum http_method)client->request->method) {
         _request_buffer_append(client, client->query_buffer,
                                client->query_buffer_used);
         _request_buffer_append(client, CRLF, 2);
@@ -198,6 +184,7 @@ int http_client_execute(http_client* client, http_message* response)
     ssize_t nbytes = 0, count = 0, remains = 0;
     char* pos;
 
+    http_message_init(response);
     client->response = response;
     _prepare_resquest(client);
     tcp_client_connect(&client->connector, client->host, client->port);
@@ -275,7 +262,8 @@ static int on_header_value(http_parser* parser, const char* at, size_t len)
 {
     struct ss value = {at, len};
     http_client* client = (http_client*)parser->data;
-    http_message_add_header(client->response, client->last_header_field, value);
+    http_message_add_ss_header(client->response, client->last_header_field,
+                               value);
     SS_DUMP(value);
     return 0;
 }
@@ -318,16 +306,20 @@ static int on_message_complete(http_parser* parser)
     return 0;
 }
 
-void http_client_init(http_client* client)
+void http_client_init(http_client* client, http_message* request)
 {
     http_parser_settings* settings = &client->settings;
 
     memset(client, 0, sizeof(http_client));
+    tcp_client_init(&client->connector);
+    http_parser_settings_init(settings);
+
     http_parser_init(&client->parser, HTTP_RESPONSE);
     client->parser.data = client;
 
-    http_parser_settings_init(settings);
-    tcp_client_init(&client->connector);
+    http_message_init(request);
+    http_message_bind_query(request, &client->query_stub);
+    client->request = request;
 
     client->http_major = 1;
     client->http_minor = 1;

@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
     const char* url = "http://example.com/";
     enum http_method method = HTTP_GET;
     http_client http_cli, *client;
-    http_message response;
+    http_message request, response;
 
     if (argc > 1) {
         url = argv[1];
@@ -26,14 +26,14 @@ int main(int argc, char* argv[])
 
     client = &http_cli;
 
-    http_client_init(client);
+    http_client_init(client, &request);
     http_client_set_request_buffer(client, buffer, sizeof(buffer));
     http_client_set_response_buffer(client, buffer, sizeof(buffer));
 
-    http_client_add_header(client, "User-Agent", "curl/7.47.0");
-    http_client_add_header(client, "Accept", "*/*");
-    http_client_set_url(client, url);
-    http_client_set_method(client, method);
+    http_message_add_header(&request, "User-Agent", "curl/7.47.0");
+    http_message_add_header(&request, "Accept", "*/*");
+    http_message_set_url(&request, url);
+    http_message_set_method(&request, method);
 
     http_client_execute(client, &response);
 

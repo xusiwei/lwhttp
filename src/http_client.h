@@ -33,18 +33,14 @@ struct http_client {
     char host[HOST_NAME_MAX];
     uint16_t port;
 
-    struct http_message request;
+    struct http_message* request;
     struct http_message* response;
 
     size_t request_buffer_used;
     struct ss request_buffer;
     struct ss response_buffer;
 
-    struct uri_query queries;
-
-    uint16_t nqueries;
-    struct ss query_names[HTTP_MAX_QUERIES];
-    struct ss query_values[HTTP_MAX_QUERIES];
+    struct uri_query query_stub;
 
     // ?name1=value1&name2=value2 ...
     char query_buffer[URI_MAX_QUERIES * (HTTP_NAME_MAX + 2 + HTTP_VALUE_MAX)];
@@ -58,11 +54,13 @@ struct http_client {
     struct ss last_header_field;
 };
 
-void http_client_init(http_client* client);
+void http_client_init(http_client* client, http_message* request);
 void http_client_set_request_buffer(http_client* client, const char* p,
                                     size_t len);
 void http_client_set_response_buffer(http_client* client, const char* p,
                                      size_t len);
+void http_client_bind_request(http_client* client, http_message* request);
+
 void http_client_set_http_version(http_client* client, unsigned short major,
                                   unsigned short minor);
 
