@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define CRLF "\r\n"
+#define TEST_BIT(n, b) ((n) & (1 << b))
 
 #ifdef _DEBUG
 #define LOGD(fmt, ...) printf("%s: " fmt "\n", __func__, ##__VA_ARGS__)
@@ -81,7 +82,7 @@ static void _prepare_resquest(http_client* client)
     }
 
     // prepare query string
-    if (hp.field_set & UF_QUERY) {
+    if (TEST_BIT(hp.field_set, UF_QUERY)) {
         _BUFFER_APPEND(client->query_buffer, client->query_buffer_used,
                        us.p + hp.field_data[UF_QUERY].off,
                        hp.field_data[UF_QUERY].len);
@@ -101,7 +102,7 @@ static void _prepare_resquest(http_client* client)
     _request_buffer_append(client, " ", 1);
 
     // RESUOURCE
-    if (hp.field_set & UF_PATH) {
+    if (TEST_BIT(hp.field_set, UF_PATH)) {
         _request_buffer_append(client, us.p + hp.field_data[UF_PATH].off,
                                hp.field_data[UF_PATH].len);
     }
@@ -131,7 +132,7 @@ static void _prepare_resquest(http_client* client)
     _request_buffer_append(client, CRLF, 2);
 
     // for request headers
-    if (hp.field_set & UF_HOST) { // Host line
+    if (TEST_BIT(hp.field_set, UF_HOST)) { // Host line
         _request_buffer_append(client, "Host: ", sizeof("Host: ") - 1);
         struct ss host = {us.p + hp.field_data[UF_HOST].off,
                           hp.field_data[UF_HOST].len};
