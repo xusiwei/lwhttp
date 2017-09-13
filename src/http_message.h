@@ -41,7 +41,7 @@ void http_message_set_method(http_message* msg, uint16_t method);
 
 void http_message_bind_query(http_message* msg, uri_query* query);
 
-void http_message_add_query(http_message* msg, const char* name,
+void http_message_add_parameter(http_message* msg, const char* name,
                             const char* value);
 
 #ifndef URI_QUERY_MAX

@@ -153,7 +153,7 @@ static void _prepare_resquest(http_client* client)
     _request_buffer_append(client, CRLF, 2);
 
     // for body
-    if (HTTP_GET != (enum http_method)client->request->method) {
+    if (HTTP_GET != (enum http_method)client->request->method && client->query_buffer_used) {
         _request_buffer_append(client, client->query_buffer,
                                client->query_buffer_used);
         _request_buffer_append(client, CRLF, 2);

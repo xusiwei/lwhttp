@@ -9,7 +9,7 @@ void http_message_bind_query(http_message* msg, uri_query* query)
     msg->query = query;
 }
 
-void http_message_add_query(http_message* msg, const char* name,
+void http_message_add_parameter(http_message* msg, const char* name,
                             const char* value)
 {
     uri_query* query = msg->query;

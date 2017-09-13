@@ -6,7 +6,7 @@ char buffer[4096];
 int main(int argc, char* argv[])
 {
     const char* url = "http://example.com/";
-    enum http_method method = HTTP_GET;
+    enum http_method method = HTTP_POST;
     http_client http_cli, *client;
     http_message request, response;
 
