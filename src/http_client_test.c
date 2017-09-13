@@ -37,5 +37,18 @@ int main(int argc, char* argv[])
 
     http_client_execute(client, &response);
 
+    printf("==== response header ====\n");
+    for (int i = 0; i < response.nheaders; i++) {
+        static char key[64], val[64];
+        ss_strcopy(key, sizeof(key), response.header_names[i]);
+        ss_strcopy(val, sizeof(val), response.header_values[i]);
+        printf("%s: %s\n", key, val);
+    }
+
+    static char body[4096];
+    memset(body, 'X', sizeof(body));
+    ss_strcopy(body, sizeof(body), response.body);
+    printf("==== response body ====\n%s", body);
+    printf("=======================\n");
     return 0;
 }

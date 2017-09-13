@@ -28,6 +28,7 @@ static uint32_t resolve_host_addr(const char* host)
 
 int tcp_client_connect(tcp_client* client, const char* name, uint16_t port)
 {
+    int ret;
     struct sockaddr_in server_addr;
 
     client->fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -43,10 +44,12 @@ int tcp_client_connect(tcp_client* client, const char* name, uint16_t port)
     server_addr.sin_port = htons(client->port);
     server_addr.sin_addr.s_addr = client->host;
 
-    if (connect(client->fd, (const struct sockaddr*)&server_addr,
-                sizeof(server_addr)) < 0) {
+    ret = connect(client->fd, (const struct sockaddr*)&server_addr,
+                  sizeof(server_addr));
+    if (ret < 0) {
         perror("connect");
     }
+    return ret;
 }
 
 long tcp_client_send(tcp_client* client, const void* buf, size_t len)

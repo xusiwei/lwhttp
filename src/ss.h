@@ -27,7 +27,7 @@ int ss_strncasecmp(const struct ss* s1, const char* s2, size_t len);
         printf("%.*s", (int)s.len, s.p);                                       \
         printf("\'\n");                                                        \
     } while (0)
-#else  // _DEBUG
+#else // _DEBUG
 #define SS_DUMP(s)
 #endif // _DEBUG
 

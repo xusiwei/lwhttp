@@ -11,6 +11,7 @@ char* ss_strcopy(char* buf, size_t len, struct ss src)
     for (i = 0; i < len; i++) {
         buf[i] = src.p[i];
     }
+    buf[i] = '\0';
     return buf;
 }
 

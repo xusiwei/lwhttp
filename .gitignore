@@ -2,6 +2,7 @@
 !.gitignore
 !.clang-format
 cmake-build*
+build/*
 # Object files
 *.o
 *.ko

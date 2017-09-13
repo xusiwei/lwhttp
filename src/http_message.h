@@ -32,17 +32,20 @@ struct http_message {
 
 void http_message_init(http_message* msg);
 
-void http_message_add_ss_header(http_message* msg, struct ss name,
-                                struct ss value);
+void http_message_set_url(http_message* msg, const char* url);
+
+void http_message_set_method(http_message* msg, uint16_t method);
+
 void http_message_add_header(http_message* msg, const char* name,
                              const char* value);
-void http_message_set_url(http_message* msg, const char* url);
-void http_message_set_method(http_message* msg, uint16_t method);
+
+void http_message_add_parameter(http_message* msg, const char* name,
+                                const char* value);
 
 void http_message_bind_query(http_message* msg, uri_query* query);
 
-void http_message_add_parameter(http_message* msg, const char* name,
-                            const char* value);
+void http_message_add_ss_header(http_message* msg, struct ss name,
+                                struct ss value);
 
 #ifndef URI_QUERY_MAX
 #define URI_QUERY_MAX 64

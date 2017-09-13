@@ -39,7 +39,8 @@ struct http_client {
     struct uri_query query_stub;
     size_t query_buffer_used;
     // name1=value1&name2=value2 ...
-    char query_buffer[URI_QUERY_MAX * (URI_QUERY_NAME_MAX + 2 + URI_QUERY_VALUE_MAX)];
+    char query_buffer[URI_QUERY_MAX *
+                      (URI_QUERY_NAME_MAX + 2 + URI_QUERY_VALUE_MAX)];
 };
 
 void http_client_init(http_client* client, http_message* request);

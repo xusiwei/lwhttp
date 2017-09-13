@@ -10,7 +10,7 @@ void http_message_bind_query(http_message* msg, uri_query* query)
 }
 
 void http_message_add_parameter(http_message* msg, const char* name,
-                            const char* value)
+                                const char* value)
 {
     uri_query* query = msg->query;
     uint16_t nqueries = query->nqueries;

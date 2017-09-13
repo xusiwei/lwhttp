@@ -153,7 +153,8 @@ static void _prepare_resquest(http_client* client)
     _request_buffer_append(client, CRLF, 2);
 
     // for body
-    if (HTTP_GET != (enum http_method)client->request->method && client->query_buffer_used) {
+    if (HTTP_GET != (enum http_method)client->request->method &&
+        client->query_buffer_used) {
         _request_buffer_append(client, client->query_buffer,
                                client->query_buffer_used);
         _request_buffer_append(client, CRLF, 2);
@@ -194,7 +195,6 @@ int http_client_execute(http_client* client, http_message* response)
         nbytes = tcp_client_recv(&client->connector, pos,
                                  client->response_buffer.len - count);
         if (nbytes <= 0) break;
-        struct ss received = {pos, nbytes};
         http_parser_execute(&client->parser, &client->settings, pos, nbytes);
         count += nbytes;
         pos += nbytes;
