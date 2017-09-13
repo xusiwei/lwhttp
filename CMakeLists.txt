@@ -3,6 +3,10 @@ project(lwhttp)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
+if (${DEBUG})
+    set(CMAKE_C_FLAGS "-D_DEBUG -g")
+endif()
+
 set(LWHTTP_SOURCES
         src/http_client.c
         src/http_client.h
